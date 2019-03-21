@@ -1,0 +1,11 @@
+// Add your native dependencies here:
+
+android {
+  defaultConfig {  
+    generatedDensities = []
+    applicationId = "file.it.up"
+  }
+  aaptOptions {  
+    additionalParameters "--no-version-vectors"  
+  }  
+} 
