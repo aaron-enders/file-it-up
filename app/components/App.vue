@@ -8,11 +8,12 @@
             <TabViewItem title="Tab 1">
                 <GridLayout columns="*" rows="*">
                     <Label class="message" :text="msg" col="0" row="0"/>
+                    <Button text="LOS" @tap="takePicture"></Button>
                 </GridLayout>
             </TabViewItem>
             <TabViewItem title="Tab 2">
                 <GridLayout columns="*" rows="*">
-                    <Label class="message" text="Tab 2 Content" col="0" row="0"/>
+			<Image :src="img" width="75" height="75" />
                 </GridLayout>
             </TabViewItem>
             <TabViewItem title="Tab 3">
@@ -25,12 +26,34 @@
 </template>
 
 <script >
+import * as camera from "nativescript-camera";
   export default {
     data() {
       return {
-        msg: 'Hello World!'
+        msg: 'Hello World!',
+        img:''
       }
-    }
+    },
+    mounted () {
+        this.takePicture();
+    },
+	methods:{
+		takePicture() {
+			camera.requestPermissions()
+			.then(() => {
+				camera.takePicture({ width: 300, height: 300, keepAspectRatio: true, saveToGallery:true })
+				.then(imageAsset => {
+					this.img = imageAsset;
+				})
+				.catch(e => {
+					console.log('error:', e);
+				});
+			})
+			.catch(e => {
+				console.log('Error requesting permission');
+			});
+		}
+	}
   }
 </script>
 
