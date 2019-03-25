@@ -7,6 +7,7 @@
       />
     </ActionBar>
     <StackLayout>
+      <Auth />
       <Photo @selected="selected" />
       <Upload
         v-if="image !== ''"
@@ -17,12 +18,13 @@
 </template>
 
 <script>
+import Auth from '@/components/Auth.vue';
 import Photo from '@/components/Photo.vue';
 import Upload from '@/components/Upload.vue';
 
 export default {
   components: {
-    Photo, Upload,
+    Photo, Upload, Auth,
   },
   data() {
     return {

@@ -76,9 +76,7 @@ export default {
         `${fs.knownFolders.currentApp().path}/bigpic.jpg`,
       ), */
       // NOTE: This works for emulator. Real device will need other address.
-      url: platform.isIOS
-        ? 'https://api.ocr.space/parse/image'
-        : 'https://api.ocr.space/parse/image',
+      url: 'https://api.cloudinary.com/v1_1/aaron-enders/image/upload',
       session: bgHttp.session('image-upload'),
       counter: 0,
     };
@@ -91,7 +89,7 @@ export default {
     },
   },
   mounted() {
-    // console.log('IMAGE', this.img.src.android);
+    console.log('IMAGE', this.img);
   },
   methods: {
     onUploadWithErrorTap(e) {
@@ -104,16 +102,9 @@ export default {
     onUploadMultiTap() {
       this.startUpload(false, true);
     },
-    startUpload(shouldFail, isMulti) {
-      console.log(
-        (shouldFail
-          ? 'Testing error during upload of '
-          : 'Uploading file: ')
-                    + this.file
-                    + (isMulti ? ' using multipart.' : ''),
-      );
+    startUpload() {
       const name = this.file.substr(this.file.lastIndexOf('/') + 1);
-      const description = `${name} (${++this.counter})`;
+      const description = `${name}`;
       const request = {
         url: this.url,
         method: 'POST',
@@ -125,25 +116,24 @@ export default {
         androidAutoDeleteAfterUpload: false,
         androidNotificationTitle: 'NativeScript HTTP background',
       };
-      if (shouldFail) {
-        request.headers['Should-Fail'] = true;
-      }
-      let task; // bgHttp.Task;
+      // let task; // bgHttp.Task;
       let lastEvent = '';
-      const params = [{
-        name: 'apikey',
-        value: 'b8eaa39a6588957',
-      },
-      {
-        name: 'file',
-        filename: this.file,
-        mimeType: 'image/jpeg',
-      },
+      const params = [
+        {
+          name: 'upload_preset',
+          value: 'zgatb9nt',
+        },
+        {
+          name: 'file',
+          filename: this.file,
+          mimeType: 'image/jpeg',
+        },
       ];
-      task = this.session.multipartUpload(params, request);
+      const task = this.session.multipartUpload(params, request);
 
       function onEvent(e) {
-        console.log(e);
+        /* console.log('EVENT', e);
+        console.log('EVENTDATA', e.data); */
         if (lastEvent !== e.eventName) {
           // suppress all repeating progress events and only show the first one
           lastEvent = e.eventName;
@@ -161,6 +151,9 @@ export default {
           }),
         });
         this.$set(this.tasks, this.tasks.indexOf(task), task);
+        if (e.eventName === 'responded') {
+          this.generatePdf(JSON.parse(e.data).url);
+        }
       }
       task.on('progress', onEvent.bind(this));
       task.on('error', onEvent.bind(this));
@@ -168,6 +161,17 @@ export default {
       task.on('complete', onEvent.bind(this));
       lastEvent = '';
       this.tasks.push(task);
+    },
+    generatePdf(imageUrl) {
+      fetch(`https://api.ocr.space/parse/imageurl?isCreateSearchablePdf=true&language=ger&isSearchablePdfHideTextLayer=true&apikey=b8eaa39a6588957&url=${imageUrl}`)
+        .then(response => response.text())
+        .then((data) => {
+          this.uploadPdf(JSON.parse(data).SearchablePDFURL);
+        }).catch((e) => {
+        });
+    },
+    uploadPdf(pdfUrl) {
+      console.log(pdfUrl);
     },
     onItemLoading(args) {
       const label = args.view.getViewById('imageLabel');

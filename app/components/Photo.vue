@@ -11,6 +11,11 @@
 import * as camera from 'nativescript-camera';
 import { Image } from 'tns-core-modules/ui/image';
 
+const { ImageCropper } = require('nativescript-imagecropper');
+const imageSource = require('tns-core-modules/image-source');
+
+const fileSystemModule = require('tns-core-modules/file-system');
+
 export default {
   name: 'Photo',
   data() {
@@ -23,11 +28,14 @@ export default {
       camera.requestPermissions()
         .then(() => {
           camera.takePicture({
-            width: 50, height: 50, keepAspectRatio: true, saveToGallery: false,
+            width: 500, height: 500, keepAspectRatio: false, saveToGallery: false,
           })
             .then((imageAsset) => {
+              console.log('ASSET', imageAsset);
               const img = new Image();
               img.src = imageAsset;
+
+
               // this.images.push(img);
               this.$emit('selected', img);
             })
