@@ -2,6 +2,7 @@
   <StackLayout background-color="#3c495e">
     <Button
       text="Foto aufnehmen"
+      class="btn btn-primary"
       @tap="scan"
     />
   </StackLayout>
@@ -10,11 +11,6 @@
 <script>
 import * as camera from 'nativescript-camera';
 import { Image } from 'tns-core-modules/ui/image';
-
-const { ImageCropper } = require('nativescript-imagecropper');
-const imageSource = require('tns-core-modules/image-source');
-
-const fileSystemModule = require('tns-core-modules/file-system');
 
 export default {
   name: 'Photo',

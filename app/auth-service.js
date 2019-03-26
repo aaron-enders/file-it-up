@@ -3,6 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const nativescript_oauth2_1 = require('nativescript-oauth2');
 const providers_1 = require('nativescript-oauth2/providers');
+const appSettings = require('application-settings');
 
 let client = null;
 function configureOAuthProviders() {
@@ -17,26 +18,42 @@ function configureOAuthProviderMicrosoft() {
     // redirectUri: "urn:ietf:wg:oauth:2.0:oob",
     redirectUri: 'fileitup://login',
     urlScheme: 'fileitup',
-    scopes: ['https://outlook.office.com/mail.read'],
+    scopes: ['user.read', 'files.read', 'files.read.all', 'sites.read.all'],
   };
   const microsoftProvider = new providers_1.TnsOaProviderMicrosoft(microsoftProviderOptions);
   return microsoftProvider;
 }
 function tnsOauthLogin(providerType) {
   client = new nativescript_oauth2_1.TnsOAuthClient(providerType);
-  client.loginWithCompletion((tokenResult, error) => {
-    if (error) {
-      console.error('back to main page with error: ');
-      console.error(error);
-    } else {
-      console.log('back to main page with access token: ');
-      console.log(tokenResult);
-    }
+  return new Promise((resolve) => {
+    client.loginWithCompletion((tokenResult, error) => {
+      if (error) {
+        console.error('back to main page with error: ');
+        console.error(error);
+      } else {
+        /* console.log('back to main page with access token: ');
+        console.log(tokenResult);
+        console.log(tokenResult.accessToken); */
+
+        resolve(tokenResult.accessToken);
+      /*
+      const odurl = 'https://graph.microsoft.com/v1.0/me/drive/root';
+      fetch(odurl, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((response) => {
+          console.log(response);
+        }).catch((e) => {
+        }); */
+      }
+    });
   });
 }
 exports.tnsOauthLogin = tnsOauthLogin;
 function tnsOauthLogout() {
   if (client) {
+    console.log('logout');
     client.logout();
   }
 }

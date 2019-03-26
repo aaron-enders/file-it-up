@@ -76,7 +76,6 @@ export default {
         `${fs.knownFolders.currentApp().path}/bigpic.jpg`,
       ), */
       // NOTE: This works for emulator. Real device will need other address.
-      url: 'https://api.cloudinary.com/v1_1/aaron-enders/image/upload',
       session: bgHttp.session('image-upload'),
       counter: 0,
     };
@@ -106,7 +105,7 @@ export default {
       const name = this.file.substr(this.file.lastIndexOf('/') + 1);
       const description = `${name}`;
       const request = {
-        url: this.url,
+        url: 'https://api.cloudinary.com/v1_1/aaron-enders/image/upload',
         method: 'POST',
         headers: {
           'Content-Type': 'application/octet-stream',
@@ -171,7 +170,7 @@ export default {
         });
     },
     uploadPdf(pdfUrl) {
-      console.log(pdfUrl);
+      // 'https://api.cloudinary.com/v1_1/aaron-enders/image/upload'
     },
     onItemLoading(args) {
       const label = args.view.getViewById('imageLabel');
