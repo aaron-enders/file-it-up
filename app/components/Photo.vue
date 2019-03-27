@@ -27,12 +27,8 @@ export default {
             width: 500, height: 500, keepAspectRatio: false, saveToGallery: false,
           })
             .then((imageAsset) => {
-              console.log('ASSET', imageAsset);
               const img = new Image();
               img.src = imageAsset;
-
-
-              // this.images.push(img);
               this.$emit('selected', img);
             })
             .catch((e) => {

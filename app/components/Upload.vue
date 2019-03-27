@@ -3,6 +3,7 @@
     columns="*, 2*"
     rows="auto, auto"
     background-color="#3c495e"
+    style="margin-top:5"
   >
     <Image
       row="0"
@@ -60,6 +61,7 @@
 const bgHttp = require('nativescript-background-http');
 const fs = require('file-system');
 const platform = require('platform');
+const appSettings = require('application-settings');
 
 export default {
   props: {
@@ -93,23 +95,24 @@ export default {
   methods: {
     onUploadWithErrorTap(e) {
       this.session = bgHttp.session('image-upload');
-      this.startUpload(true, false);
+      this.resize(true, false);
     },
     onUploadTap(e) {
-      this.startUpload(false, false);
+      this.resize(false, false);
     },
     onUploadMultiTap() {
-      this.startUpload(false, true);
+      this.resize(false, true);
     },
-    startUpload() {
+    resize() {
       const name = this.file.substr(this.file.lastIndexOf('/') + 1);
       const description = `${name}`;
       const request = {
-        url: 'https://api.cloudinary.com/v1_1/aaron-enders/image/upload',
+        url: 'https://img-resize.com/resize',
         method: 'POST',
         headers: {
-          'Content-Type': 'application/octet-stream',
+          'Content-Type': 'application/x-www-form-urlencoded',
           'File-Name': name,
+          'X-Requested-With': 'XMLHttpRequest',
         },
         description,
         androidAutoDeleteAfterUpload: false,
@@ -118,12 +121,10 @@ export default {
       // let task; // bgHttp.Task;
       let lastEvent = '';
       const params = [
+        { name: 'op', value: 'scale' },
+        { name: 'scaledWidth', value: '1000' },
         {
-          name: 'upload_preset',
-          value: 'zgatb9nt',
-        },
-        {
-          name: 'file',
+          name: 'input',
           filename: this.file,
           mimeType: 'image/jpeg',
         },
@@ -151,7 +152,7 @@ export default {
         });
         this.$set(this.tasks, this.tasks.indexOf(task), task);
         if (e.eventName === 'responded') {
-          this.generatePdf(JSON.parse(e.data).url);
+          this.generatePdf(`https://img-resize.com${JSON.parse(e.data).view}`);
         }
       }
       task.on('progress', onEvent.bind(this));
@@ -162,6 +163,7 @@ export default {
       this.tasks.push(task);
     },
     generatePdf(imageUrl) {
+      console.log('generating pdf', imageUrl);
       fetch(`https://api.ocr.space/parse/imageurl?isCreateSearchablePdf=true&language=ger&isSearchablePdfHideTextLayer=true&apikey=b8eaa39a6588957&url=${imageUrl}`)
         .then(response => response.text())
         .then((data) => {
@@ -170,7 +172,24 @@ export default {
         });
     },
     uploadPdf(pdfUrl) {
-      // 'https://api.cloudinary.com/v1_1/aaron-enders/image/upload'
+      console.log('starting uploadPdf', pdfUrl);
+      const mainFolderId = appSettings.getString('mainFolderId');
+      const mstoken = appSettings.getString('mstoken');
+      fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${mainFolderId}/children`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${mstoken}`, 'Content-Type': 'application/json', Prefer: 'respond-async' },
+        body: JSON.stringify({
+          '@microsoft.graph.sourceUrl': pdfUrl,
+          name: 'test.pdf',
+          file: { },
+        }),
+      })
+        .then(response => response.text())
+        .then((data) => {
+          console.log(data);
+        }).catch((e) => {
+          console.log(e);
+        });
     },
     onItemLoading(args) {
       const label = args.view.getViewById('imageLabel');

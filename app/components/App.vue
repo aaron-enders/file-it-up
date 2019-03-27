@@ -30,7 +30,7 @@
         v-if="!loggedIn"
       >
         <Button
-          text="Login"
+          :text="loading ? 'Lade...' : 'Login'"
           class="btn btn-primary"
           @tap="login()"
         />
@@ -73,6 +73,7 @@ export default {
       image: '',
       mstoken: '',
       loggedIn: false,
+      loading: false,
       user: {},
     };
   },
@@ -88,8 +89,9 @@ export default {
     },
     login() {
       auth_service_1.tnsOauthLogin('microsoft').then((token) => {
+        this.loading = true;
         appSettings.setString('mstoken', token);
-        this.mstoken = appSettings.getString('mstoken');
+        this.mstoken = token;
         this.getUser();
       });
     },
@@ -112,10 +114,12 @@ export default {
         .then((response) => {
           if (response.statusText === 'Unauthorized') {
             this.loggedIn = false;
+            this.loading = false;
           } else {
-            this.loggedIn = true;
             response.json().then((json) => {
+              this.loggedIn = true;
               this.user = json;
+              this.loading = false;
             });
           }
         }).catch((e) => {
