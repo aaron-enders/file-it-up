@@ -1,7 +1,7 @@
 <template>
   <GridLayout
     columns="*, 2*"
-    rows="auto, auto"
+    rows="auto, auto, *"
     background-color="#3c495e"
     style="margin-top:5"
   >
@@ -11,8 +11,17 @@
       :src="img.src"
       width="75"
     />
-    <ListView
+    <Button
       row="0"
+      col="1"
+      col-span="1"
+      margin="2"
+      text="Scannen"
+      class="btn btn-primary"
+      @tap="onUploadMultiTap"
+    />
+    <ListView
+      row="3"
       col="1"
       col-span="3"
       for="item in tasks"
@@ -24,36 +33,11 @@
             :value="item.upload"
             :max-value="item.totalUpload"
           />
-          <Label :text="'Uploading: ' + item.upload + ' / ' + item.totalUpload" />
+          <Label :text="'Lade: ' + item.upload + ' / ' + item.totalUpload" />
           <Label :text="'Status: ' + item.status" />
         </StackLayout>
       </v-template>
     </ListView>
-    <ListView
-      v-if="false"
-      row="2"
-      col-span="3"
-      for="item in events"
-    >
-      <v-template let-item="item">
-        <StackLayout>
-          <Label :text="item.eventTitle" />
-          <Label
-            :text="item.eventData"
-            text-wrap="true"
-          />
-        </StackLayout>
-      </v-template>
-    </ListView>
-
-    <Button
-      row="3"
-      col="0"
-      col-span="2"
-      margin="2"
-      text="Scannen"
-      @tap="onUploadMultiTap"
-    />
   </gridlayout>
 </template>
 
@@ -62,6 +46,8 @@ const bgHttp = require('nativescript-background-http');
 const fs = require('file-system');
 const platform = require('platform');
 const appSettings = require('application-settings');
+const httpModule = require('http');
+const fileSystemModule = require('tns-core-modules/file-system');
 
 export default {
   props: {
@@ -73,11 +59,6 @@ export default {
   data() {
     return {
       tasks: [],
-      events: [],
-      /* file: fs.path.normalize(
-        `${fs.knownFolders.currentApp().path}/bigpic.jpg`,
-      ), */
-      // NOTE: This works for emulator. Real device will need other address.
       session: bgHttp.session('image-upload'),
       counter: 0,
     };
@@ -90,6 +71,7 @@ export default {
     },
   },
   mounted() {
+    console.log('mounted');
     console.log('IMAGE', this.img);
   },
   methods: {
@@ -105,7 +87,6 @@ export default {
     },
     resize() {
       const name = this.file.substr(this.file.lastIndexOf('/') + 1);
-      const description = `${name}`;
       const request = {
         url: 'https://img-resize.com/resize',
         method: 'POST',
@@ -114,12 +95,10 @@ export default {
           'File-Name': name,
           'X-Requested-With': 'XMLHttpRequest',
         },
-        description,
-        androidAutoDeleteAfterUpload: false,
-        androidNotificationTitle: 'NativeScript HTTP background',
+        description: 'Verarbeite Dokument',
+        androidAutoDeleteAfterUpload: true,
+        androidNotificationTitle: 'Dokumentverarbeitung',
       };
-      // let task; // bgHttp.Task;
-      let lastEvent = '';
       const params = [
         { name: 'op', value: 'scale' },
         { name: 'scaledWidth', value: '1000' },
@@ -132,24 +111,6 @@ export default {
       const task = this.session.multipartUpload(params, request);
 
       function onEvent(e) {
-        /* console.log('EVENT', e);
-        console.log('EVENTDATA', e.data); */
-        if (lastEvent !== e.eventName) {
-          // suppress all repeating progress events and only show the first one
-          lastEvent = e.eventName;
-        } else {
-          return;
-        }
-        this.events.push({
-          eventTitle: `${e.eventName} ${e.object.description}`,
-          eventData: JSON.stringify({
-            error: e.error ? e.error.toString()
-              : e.error,
-            currentBytes: e.currentBytes,
-            totalBytes: e.totalBytes,
-            body: e.data,
-          }),
-        });
         this.$set(this.tasks, this.tasks.indexOf(task), task);
         if (e.eventName === 'responded') {
           this.generatePdf(`https://img-resize.com${JSON.parse(e.data).view}`);
@@ -159,37 +120,70 @@ export default {
       task.on('error', onEvent.bind(this));
       task.on('responded', onEvent.bind(this));
       task.on('complete', onEvent.bind(this));
-      lastEvent = '';
       this.tasks.push(task);
     },
     generatePdf(imageUrl) {
       console.log('generating pdf', imageUrl);
       fetch(`https://api.ocr.space/parse/imageurl?isCreateSearchablePdf=true&language=ger&isSearchablePdfHideTextLayer=true&apikey=b8eaa39a6588957&url=${imageUrl}`)
-        .then(response => response.text())
+        .then(response => response.json())
         .then((data) => {
-          this.uploadPdf(JSON.parse(data).SearchablePDFURL);
-        }).catch((e) => {
-        });
-    },
-    uploadPdf(pdfUrl) {
-      console.log('starting uploadPdf', pdfUrl);
-      const mainFolderId = appSettings.getString('mainFolderId');
-      const mstoken = appSettings.getString('mstoken');
-      fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${mainFolderId}/children`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${mstoken}`, 'Content-Type': 'application/json', Prefer: 'respond-async' },
-        body: JSON.stringify({
-          '@microsoft.graph.sourceUrl': pdfUrl,
-          name: 'test.pdf',
-          file: { },
-        }),
-      })
-        .then(response => response.text())
-        .then((data) => {
-          console.log(data);
+          this.downloadPdf(data.SearchablePDFURL);
         }).catch((e) => {
           console.log(e);
         });
+    },
+    downloadPdf(pdfUrl) {
+      console.log(pdfUrl);
+      const folder = fileSystemModule.knownFolders.documents();
+      const storageFile = folder.getFile('test.pdf');
+      // const storageFile = fileSystemModule.File.fromPath(path);
+
+      httpModule.getFile(pdfUrl).then((resultFile) => {
+        const binarySource = resultFile.readSync((err) => {
+          console.log(err);
+        });
+        storageFile.writeSync(binarySource, (err) => {
+          console.log(err);
+        });
+        console.log('STORAGEFILE IS: ', storageFile.path);
+        console.log('BINARY IS: ', binarySource);
+        this.uploadPdf(storageFile);
+      }, (e) => {
+      });
+    },
+    uploadPdf(storageFile) {
+      const mainFolderId = appSettings.getString('mainFolderId');
+      console.log('UPLOADING TO ONEDRIVE FOLDER WITH ID ', `https://graph.microsoft.com/v1.0/me/drive/items/${mainFolderId}:/test.pdf:/content`);
+      const mstoken = appSettings.getString('mstoken');
+
+      const request = {
+        url: `https://graph.microsoft.com/v1.0/me/drive/items/${mainFolderId}:/test.pdf:/content`,
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${mstoken}`, 'Content-Type': 'application/pdf', Prefer: 'respond-async' },
+        description: 'Lade in Cloud',
+        androidAutoDeleteAfterUpload: true,
+        androidNotificationTitle: 'PDF upload zu OneDrive',
+      };
+      const task = this.session.uploadFile(storageFile.path, request);
+
+
+      function onEvent(e) {
+        console.log(e);
+        this.$set(this.tasks, this.tasks.indexOf(task), task);
+        if (e.eventName === 'responded') {
+          console.log('RESPONDED', JSON.parse(e.data));
+          const pdfLink = JSON.parse(e.data)['@microsoft.graph.downloadUrl'];
+          this.$emit('success', pdfLink);
+        }
+        if (e.eventName === 'error') {
+          console.log('ERROR', e.data);
+        }
+      }
+      task.on('progress', onEvent.bind(this));
+      task.on('error', onEvent.bind(this));
+      task.on('responded', onEvent.bind(this));
+      task.on('complete', onEvent.bind(this));
+      this.tasks.push(task);
     },
     onItemLoading(args) {
       const label = args.view.getViewById('imageLabel');

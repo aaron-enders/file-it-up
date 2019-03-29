@@ -2,7 +2,7 @@
   <Page class="page">
     <ActionBar
       class="action-bar bg-primary"
-      title="File It Up"
+      :title="view ? 'Dokumente speichern' : 'Einstellungen'"
     >
       <ActionItem
         ios-system-icon="16"
@@ -19,6 +19,7 @@
         @tap="loggedIn ? logout() : login()"
       />
     </ActionBar>
+    <Label :text="view" />
     <Settings
       v-if="view === 'settings'"
       @back="view = 'main'"
@@ -26,31 +27,27 @@
     <StackLayout
       v-else-if="view = 'main'"
     >
-      <StackLayout
+      <Button
         v-if="!loggedIn"
-      >
-        <Button
-          :text="loading ? 'Lade...' : 'Login'"
-          class="btn btn-primary"
-          @tap="login()"
-        />
-      </StackLayout>
-      <StackLayout
-        v-if="loggedIn"
-        class="p-20"
-      >
-        <Label
-          :text="user.givenName+' '+user.surname"
-        />
-        <Photo
-          v-if="image === ''"
-          @selected="selected"
-        />
-        <Upload
-          v-else
-          :img="image"
-        />
-      </StackLayout>
+        :text="loading ? 'Lade...' : 'Login'"
+        class="btn btn-primary"
+        @tap="login()"
+      />
+      <Photo
+        v-else-if="image === ''"
+        @selected="selected"
+      />
+      <Upload
+        v-if="image !== ''"
+        :img="image"
+        @success="e => uploaded(e)"
+      />
+      <Button
+        v-show="pdfUrl !== ''"
+        text="Gespeichertes PDF öffnen"
+        class="btn btn-primary"
+        @tap="openPdf()"
+      />
     </StackLayout>
   </Page>
 </template>
@@ -62,6 +59,7 @@ import Settings from '@/components/Settings.vue';
 
 const appSettings = require('application-settings');
 const auth_service_1 = require('../auth-service');
+const utilsModule = require('tns-core-modules/utils/utils');
 
 export default {
   components: {
@@ -72,6 +70,7 @@ export default {
       view: 'main',
       image: '',
       mstoken: '',
+      pdfUrl: '',
       loggedIn: false,
       loading: false,
       user: {},
@@ -89,6 +88,7 @@ export default {
     },
     login() {
       auth_service_1.tnsOauthLogin('microsoft').then((token) => {
+        console.log('Login complete, token: ', token);
         this.loading = true;
         appSettings.setString('mstoken', token);
         this.mstoken = token;
@@ -104,6 +104,14 @@ export default {
     selected(img) {
       this.image = img;
     },
+    uploaded(pdfUrl) {
+      console.log('PDFURL: ', pdfUrl);
+      this.image = '';
+      this.pdfUrl = pdfUrl;
+    },
+    openPdf() {
+      utilsModule.openUrl(this.pdfUrl);
+    },
     getUser() {
       const odurl = 'https://graph.microsoft.com/v1.0/me';
       console.log('TOKEN', this.mstoken);
@@ -112,14 +120,21 @@ export default {
         headers: { Authorization: `Bearer ${this.mstoken}` },
       })
         .then((response) => {
+          console.log(response);
           if (response.statusText === 'Unauthorized') {
+            console.log('ERROR', response);
             this.loggedIn = false;
             this.loading = false;
           } else {
+            console.log('LOGGING IN');
             response.json().then((json) => {
+              console.log('LOGGED IN');
               this.loggedIn = true;
               this.user = json;
               this.loading = false;
+              if (!appSettings.getString('mainFolderId')) {
+                this.view = 'settings';
+              }
             });
           }
         }).catch((e) => {

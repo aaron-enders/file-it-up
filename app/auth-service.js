@@ -18,7 +18,7 @@ function configureOAuthProviderMicrosoft() {
     // redirectUri: "urn:ietf:wg:oauth:2.0:oob",
     redirectUri: 'fileitup://login',
     urlScheme: 'fileitup',
-    scopes: ['user.read', 'files.read', 'files.read.all', 'sites.read.all', 'files.readwrite.all'],
+    scopes: ['files.readwrite.all'],
   };
   const microsoftProvider = new providers_1.TnsOaProviderMicrosoft(microsoftProviderOptions);
   return microsoftProvider;

@@ -1,7 +1,7 @@
 <template>
   <StackLayout background-color="#3c495e">
     <Button
-      text="Foto aufnehmen"
+      text="Neues Dokument scannen"
       class="btn btn-primary"
       @tap="scan"
     />
