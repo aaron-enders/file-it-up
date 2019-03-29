@@ -29,7 +29,7 @@
     >
       <Button
         v-if="!loggedIn"
-        :text="loading ? 'Lade...' : 'Login'"
+        :text="loading ? 'Lade...' : 'OneDrive Login'"
         class="btn btn-primary"
         @tap="login()"
       />

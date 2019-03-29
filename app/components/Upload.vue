@@ -1,44 +1,43 @@
 <template>
-  <GridLayout
-    columns="*, 2*"
-    rows="auto, auto, *"
-    background-color="#3c495e"
-    style="margin-top:5"
-  >
-    <Image
-      row="0"
-      col="0"
-      :src="img.src"
-      width="75"
-    />
-    <Button
-      row="0"
-      col="1"
-      col-span="1"
-      margin="2"
-      text="Scannen"
-      class="btn btn-primary"
-      @tap="onUploadMultiTap"
-    />
-    <ListView
-      row="3"
-      col="1"
-      col-span="3"
-      for="item in tasks"
+  <StackLayout>
+    <GridLayout
+      columns="*, 2*"
+      rows="auto, auto, auto"
+      background-color="#3c495e"
+      style="margin-top:5"
     >
-      <v-template>
-        <StackLayout>
-          <Label :text="item.description" />
-          <Progress
-            :value="item.upload"
-            :max-value="item.totalUpload"
-          />
-          <Label :text="'Lade: ' + item.upload + ' / ' + item.totalUpload" />
-          <Label :text="'Status: ' + item.status" />
-        </StackLayout>
-      </v-template>
-    </ListView>
-  </gridlayout>
+      <Image
+        row="0"
+        col="0"
+        :src="img.src"
+        width="75"
+      />
+      <ListView
+        row="0"
+        col="1"
+        col-span="3"
+        for="item in tasks"
+      >
+        <v-template>
+          <StackLayout>
+            <Label :text="item.description" />
+            <Progress
+              :value="item.upload"
+              :max-value="item.totalUpload"
+            />
+            <Label :text="'Lade: ' + item.upload + ' / ' + item.totalUpload" />
+            <Label :text="'Status: ' + item.status" />
+          </StackLayout>
+        </v-template>
+      </ListView>
+    </gridlayout>
+    <Button
+      margin="2"
+      text="In OneDrive speichern"
+      class="btn btn-primary"
+      @tap="uploadPdf()"
+    />
+  </StackLayout>
 </template>
 
 <script>
@@ -71,8 +70,7 @@ export default {
     },
   },
   mounted() {
-    console.log('mounted');
-    console.log('IMAGE', this.img);
+    this.resize();
   },
   methods: {
     onUploadWithErrorTap(e) {
@@ -147,11 +145,11 @@ export default {
         });
         console.log('STORAGEFILE IS: ', storageFile.path);
         console.log('BINARY IS: ', binarySource);
-        this.uploadPdf(storageFile);
+        this.pdfFile = storageFile;
       }, (e) => {
       });
     },
-    uploadPdf(storageFile) {
+    uploadPdf() {
       const mainFolderId = appSettings.getString('mainFolderId');
       console.log('UPLOADING TO ONEDRIVE FOLDER WITH ID ', `https://graph.microsoft.com/v1.0/me/drive/items/${mainFolderId}:/test.pdf:/content`);
       const mstoken = appSettings.getString('mstoken');
@@ -162,9 +160,9 @@ export default {
         headers: { Authorization: `Bearer ${mstoken}`, 'Content-Type': 'application/pdf', Prefer: 'respond-async' },
         description: 'Lade in Cloud',
         androidAutoDeleteAfterUpload: true,
-        androidNotificationTitle: 'PDF upload zu OneDrive',
+        androidNotificationTitle: 'OneDrive-Synchronisierung',
       };
-      const task = this.session.uploadFile(storageFile.path, request);
+      const task = this.session.uploadFile(this.pdfFile.path, request);
 
 
       function onEvent(e) {
