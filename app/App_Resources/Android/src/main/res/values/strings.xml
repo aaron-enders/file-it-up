@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">File It Up!</string>
-    <string name="title_activity_kimera">File It Up!</string>
+  <string name="foldertosave">"Folder to save"</string>
+  <string name="openpdf">"open PDF"</string>
+  <string name="next">"Continue"</string>
+  <string name="documentsaved">"Successfully saved to \'OneDrive/Apps/File It Up\'"</string>
+  <string name="processing">"Processing document"</string>
+  <string name="synchronizing">"Synchronizing OneDrive"</string>
+  <string name="create">"Create"</string>
+  <string name="enternewfoldername">"Enter the name of the new folder"</string>
+  <string name="newfolder">"New folder"</string>
+  <string name="status">"Status"</string>
+  <string name="loading">"Loading"</string>
+  <string name="loginfailed">"Login failed"</string>
+  <string name="cancel">"Cancel"</string>
+  <string name="logout">"Sign out"</string>
+  <string name="title">"Save document"</string>
+  <string name="scannew">"Scan new document"</string>
+  <string name="_app_name_1k3Sbz">"OneDrive document scan"</string>
+  <string name="app_name">"OneDrive document scan"</string>
+  <string name="title_activity_kimera">"OneDrive document scan"</string>
 </resources>

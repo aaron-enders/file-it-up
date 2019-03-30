@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="foldertosave">"Ordner zum Speichern"</string>
+  <string name="openpdf">"PDF öffnen"</string>
+  <string name="next">"Weiter"</string>
+  <string name="documentsaved">"Dokument erfolgreich in \'OneDrive/Apps/File It Up\' gespeichert!"</string>
+  <string name="processing">"Dokumentverarbeitung"</string>
+  <string name="synchronizing">"OneDrive-Synchronisierung"</string>
+  <string name="create">"Anlegen"</string>
+  <string name="enternewfoldername">"Geben Sie den Namen des neuen Ordners ein"</string>
+  <string name="newfolder">"Neuer Ordner"</string>
+  <string name="status">"Status"</string>
+  <string name="loading">"Lade"</string>
+  <string name="loginfailed">"Anmeldung fehlgeschlagen"</string>
+  <string name="cancel">"Abbrechen"</string>
+  <string name="logout">"Abmelden"</string>
+  <string name="title">"Dokumente speichern"</string>
+  <string name="scannew">"Neues Dokument scannen"</string>
+  <string name="_app_name_1k3Sbz">"OneDrive Dokumentscanner"</string>
+  <string name="app_name">"OneDrive Dokumentscanner"</string>
+  <string name="title_activity_kimera">"OneDrive Dokumentscanner"</string>
+</resources>

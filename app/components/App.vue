@@ -2,7 +2,7 @@
   <Page class="page">
     <ActionBar
       class="action-bar bg-primary"
-      :title="view ? 'Dokumente speichern' : 'Einstellungen'"
+      :title="'title'|L"
     >
       <!-- <ActionItem
         ios-system-icon="16"
@@ -12,11 +12,12 @@
         @tap="view === 'main' ? setView('settings') : setView('main')"
       /> -->
       <ActionItem
+        v-show="loggedIn"
         ios-system-icon="16"
         ios.position="right"
-        :text="loggedIn ? 'Abmelden' : 'Anmelden'"
+        :text="'logout'|L"
         android.position="popup"
-        @tap="loggedIn ? logout() : login()"
+        @tap="logout()"
       />
     </ActionBar>
     <StackLayout
@@ -35,6 +36,7 @@
       />
       <Photo
         v-show="loggedIn && image === ''"
+        :logged-in="loggedIn"
         @selected="selected"
       />
       <Scan
@@ -79,7 +81,7 @@ export default {
     };
   },
   mounted() {
-    console.log('mounted');
+    alert(this.$localize('app.name'));
     const mstoken = appSettings.getString('mstoken');
 
     if (mstoken) {
@@ -112,13 +114,13 @@ export default {
     uploaded(pdfUrl) {
       console.log('PDFURL: ', pdfUrl);
 
-      action('Dokument erfolgreich in "OneDrive/Apps/File It Up" gespeichert!', 'Weiter', ['PDF öffnen'])
+      action(this.$localize('documentsaved'), this.$localize('next'), [this.$localize('openpdf')])
         .then((result) => {
           console.log(result);
           this.image = '';
           this.pdfFile = null;
           this.pdfUrl = pdfUrl;
-          if (result === 'PDF öffnen') {
+          if (result === this.$localize('openpdf')) {
             utilsModule.openUrl(this.pdfUrl);
           }
         });
@@ -137,6 +139,7 @@ export default {
           console.log(response);
           if (response.statusText === 'Unauthorized') {
             console.log('ERROR', response);
+            alert(this.$localize('loginfailed'));
             this.loggedIn = false;
             this.loading = false;
           } else {

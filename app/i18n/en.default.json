@@ -1,0 +1,19 @@
+{
+    "app.name": "OneDrive document scan",
+    "scannew" : "Scan new document",
+    "title": "Save document",
+    "logout": "Sign out",
+    "cancel": "Cancel",
+    "loginfailed": "Login failed",
+    "loading": "Loading",
+    "status": "Status",
+    "newfolder": "New folder",
+    "enternewfoldername": "Enter the name of the new folder",
+    "create": "Create",
+    "synchronizing": "Synchronizing OneDrive",
+    "processing": "Processing document",
+    "documentsaved": "Successfully saved to 'OneDrive/Apps/File It Up'",
+    "next": "Continue",
+    "openpdf": "open PDF",
+    "foldertosave": "Folder to save"
+}

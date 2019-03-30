@@ -1,7 +1,7 @@
 <template>
   <StackLayout background-color="#3c495e">
     <Button
-      text="Neues Dokument scannen"
+      :text="'scannew'|L"
       class="btn btn-primary"
       @tap="scan"
     />
@@ -14,13 +14,21 @@ import { Image } from 'tns-core-modules/ui/image';
 
 export default {
   name: 'Photo',
+  props: {
+    loggedIn: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       img: '',
     };
   },
   mounted() {
-    this.scan();
+    if (this.loggedIn) {
+      this.scan();
+    }
   },
   methods: {
     scan() {

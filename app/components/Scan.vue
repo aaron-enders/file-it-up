@@ -25,8 +25,8 @@
               :value="item.upload"
               :max-value="item.totalUpload"
             />
-            <Label :text="'Lade: ' + item.upload + ' / ' + item.totalUpload" />
-            <Label :text="'Status: ' + item.status" />
+            <Label :text="$localize('loading') + ': ' + item.upload + ' / ' + item.totalUpload" />
+            <Label :text="$localize('status') + ': ' + item.status" />
           </StackLayout>
         </v-template>
       </ListView>
@@ -34,7 +34,7 @@
     <Button
       v-if="pdfFile !== ''"
       margin="2"
-      text="Abbrechen"
+      :text="'cancel'|L"
       class="btn btn-primary"
       @tap="cancel()"
     />
@@ -96,9 +96,9 @@ export default {
           'File-Name': name,
           'X-Requested-With': 'XMLHttpRequest',
         },
-        description: 'Verarbeite Dokument',
+        description: this.$localize('processing'),
         androidAutoDeleteAfterUpload: true,
-        androidNotificationTitle: 'Dokumentverarbeitung',
+        androidNotificationTitle: this.$localize('processing'),
       };
       const params = [
         { name: 'op', value: 'scale' },

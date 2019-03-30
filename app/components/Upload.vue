@@ -22,7 +22,7 @@
     v-else
     class="p-20"
   >
-    <Label text="Ordner zum Speichern" />
+    <Label :text="'foldertosave'|L" />
     <ListPicker
       v-if="folderLoaded && hasFolders"
       key="folders.length"
@@ -30,12 +30,12 @@
       :items="folders"
     />
     <Button
-      text="Neuer Ordner"
+      :text="'newfolder'|L"
       class="btn btn-primary"
       @tap="newFolder()"
     />
     <Button
-      text="Weiter"
+      :text="'continue'|L"
       class="btn btn-primary"
       @tap="uploadToCloud()"
     />
@@ -72,11 +72,11 @@ export default {
   methods: {
     newFolder() {
       prompt({
-        title: 'Neuer Ordner',
-        message: 'Geben Sie den Namen des neuen Ordners ein',
-        okButtonText: 'Anlegen',
-        cancelButtonText: 'Abbrechen',
-        defaultText: 'Neuer Ordner',
+        title: this.$localize('newfolder'),
+        message: this.$localize('enternewfoldername'),
+        okButtonText: this.$localize('create'),
+        cancelButtonText: this.$localize('cancel'),
+        defaultText: this.$localize('newfolder'),
       }).then((result) => {
         console.log(`Dialog result: ${result.result}, text: ${result.text}`);
         fetch('https://graph.microsoft.com/v1.0/me/drive/special/approot/children', {
@@ -132,7 +132,6 @@ export default {
         });
     },
     uploadToCloud() {
-      console.log('---------------', this.pdfFile);
       const today = new Date();
       const dd = String(today.getDate()).padStart(2, '0');
       const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
@@ -149,7 +148,7 @@ export default {
         headers: { Authorization: `Bearer ${mstoken}`, 'Content-Type': 'application/pdf', Prefer: 'respond-async' },
         description: 'Lade in Cloud',
         androidAutoDeleteAfterUpload: true,
-        androidNotificationTitle: 'OneDrive-Synchronisierung',
+        androidNotificationTitle: this.$localize('synchronizing'),
       };
       const task = this.session.uploadFile(this.pdfFile.path, request);
 

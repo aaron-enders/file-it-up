@@ -28,6 +28,7 @@
         "nativescript-imagepicker": "6.0.6",
         "nativescript-intl": "3.0.0",
         "nativescript-iqkeyboardmanager": "1.4.0",
+        "nativescript-localize": "^4.1.1",
         "nativescript-oauth2": "^1.4.1",
         "nativescript-social-share": "1.5.1",
         "nativescript-theme-core": "1.0.4",

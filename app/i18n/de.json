@@ -1,0 +1,19 @@
+{
+    "app.name": "OneDrive Dokumentscanner",
+    "scannew" : "Neues Dokument scannen",
+    "title": "Dokumente speichern",
+    "logout": "Abmelden",
+    "cancel": "Abbrechen",
+    "loginfailed": "Anmeldung fehlgeschlagen",
+    "loading": "Lade",
+    "status": "Status",
+    "newfolder": "Neuer Ordner",
+    "enternewfoldername": "Geben Sie den Namen des neuen Ordners ein",
+    "create": "Anlegen",
+    "synchronizing": "OneDrive-Synchronisierung",
+    "processing": "Dokumentverarbeitung",
+    "documentsaved": "Dokument erfolgreich in 'OneDrive/Apps/File It Up' gespeichert!",
+    "next": "Weiter",
+    "openpdf": "PDF öffnen",
+    "foldertosave": "Ordner zum Speichern"
+}
