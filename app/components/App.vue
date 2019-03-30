@@ -4,13 +4,13 @@
       class="action-bar bg-primary"
       :title="view ? 'Dokumente speichern' : 'Einstellungen'"
     >
-      <ActionItem
+      <!-- <ActionItem
         ios-system-icon="16"
         ios.position="right"
         :text="view === 'main' ? 'Einstellungen' : 'Zurück'"
         android.position="popup"
         @tap="view === 'main' ? setView('settings') : setView('main')"
-      />
+      /> -->
       <ActionItem
         ios-system-icon="16"
         ios.position="right"
@@ -19,14 +19,14 @@
         @tap="loggedIn ? logout() : login()"
       />
     </ActionBar>
-    <Label :text="view" />
-    <Settings
-      v-if="view === 'settings'"
-      @back="view = 'main'"
-    />
     <StackLayout
-      v-else-if="view = 'main'"
+      v-if="view = 'main'"
     >
+      <Label
+        v-if="loggedIn && false"
+        class="p-20"
+        :text="'Angemeldet als '+user.givenName+' '+user.surname"
+      />
       <Button
         v-if="!loggedIn"
         :text="loading ? 'Lade...' : 'OneDrive Login'"
@@ -34,20 +34,19 @@
         @tap="login()"
       />
       <Photo
-        v-else-if="image === ''"
+        v-show="loggedIn && image === ''"
         @selected="selected"
       />
-      <Upload
-        v-if="image !== ''"
+      <Scan
+        v-if="image !== '' && !pdfFile"
         :img="image"
-        @success="e => uploaded(e)"
+        @downloaded="e => downloaded(e)"
         @cancel="cancel()"
       />
-      <Button
-        v-show="pdfUrl !== ''"
-        text="Gespeichertes PDF öffnen"
-        class="btn btn-primary"
-        @tap="openPdf()"
+      <Upload
+        v-if="pdfFile"
+        :pdf-file="pdfFile"
+        @success="e => uploaded(e)"
       />
     </StackLayout>
   </Page>
@@ -55,8 +54,8 @@
 
 <script>
 import Photo from '@/components/Photo.vue';
+import Scan from '@/components/Scan.vue';
 import Upload from '@/components/Upload.vue';
-import Settings from '@/components/Settings.vue';
 
 const appSettings = require('application-settings');
 const auth_service_1 = require('../auth-service');
@@ -64,20 +63,23 @@ const utilsModule = require('tns-core-modules/utils/utils');
 
 export default {
   components: {
-    Photo, Upload, Settings,
+    Photo, Scan, Upload,
   },
   data() {
     return {
       view: 'main',
       image: '',
       mstoken: '',
+      pdfFile: null,
       pdfUrl: '',
       loggedIn: false,
       loading: false,
       user: {},
+      folder: '',
     };
   },
   mounted() {
+    console.log('mounted');
     const mstoken = appSettings.getString('mstoken');
 
     if (mstoken) {
@@ -109,11 +111,20 @@ export default {
     },
     uploaded(pdfUrl) {
       console.log('PDFURL: ', pdfUrl);
-      this.image = '';
-      this.pdfUrl = pdfUrl;
+
+      action('Dokument erfolgreich in "OneDrive/Apps/File It Up" gespeichert!', 'Weiter', ['PDF öffnen'])
+        .then((result) => {
+          console.log(result);
+          this.image = '';
+          this.pdfFile = null;
+          this.pdfUrl = pdfUrl;
+          if (result === 'PDF öffnen') {
+            utilsModule.openUrl(this.pdfUrl);
+          }
+        });
     },
-    openPdf() {
-      utilsModule.openUrl(this.pdfUrl);
+    downloaded(pdfFile) {
+      this.pdfFile = pdfFile;
     },
     getUser(mstoken) {
       const odurl = 'https://graph.microsoft.com/v1.0/me';
@@ -135,9 +146,6 @@ export default {
               this.loggedIn = true;
               this.user = json;
               this.loading = false;
-              if (!appSettings.getString('mainFolderId')) {
-                this.view = 'settings';
-              }
             });
           }
         }).catch((e) => {

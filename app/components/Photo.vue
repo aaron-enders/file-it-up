@@ -19,6 +19,9 @@ export default {
       img: '',
     };
   },
+  mounted() {
+    this.scan();
+  },
   methods: {
     scan() {
       camera.requestPermissions()

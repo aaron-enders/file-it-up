@@ -3,7 +3,6 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const nativescript_oauth2_1 = require('nativescript-oauth2');
 const providers_1 = require('nativescript-oauth2/providers');
-const appSettings = require('application-settings');
 
 let client = null;
 function configureOAuthProviders() {
@@ -18,7 +17,7 @@ function configureOAuthProviderMicrosoft() {
     // redirectUri: "urn:ietf:wg:oauth:2.0:oob",
     redirectUri: 'fileitup://login',
     urlScheme: 'fileitup',
-    scopes: ['files.readwrite.all'],
+    scopes: ['files.readwrite.appfolder', 'offline_access'],
   };
   const microsoftProvider = new providers_1.TnsOaProviderMicrosoft(microsoftProviderOptions);
   return microsoftProvider;
@@ -31,21 +30,7 @@ function tnsOauthLogin(providerType) {
         console.error('back to main page with error: ');
         console.error(error);
       } else {
-        /* console.log('back to main page with access token: ');
-        console.log(tokenResult);
-        console.log(tokenResult.accessToken); */
-
         resolve(tokenResult.accessToken);
-      /*
-      const odurl = 'https://graph.microsoft.com/v1.0/me/drive/root';
-      fetch(odurl, {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((response) => {
-          console.log(response);
-        }).catch((e) => {
-        }); */
       }
     });
   });
