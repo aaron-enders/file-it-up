@@ -32,10 +32,18 @@
       </ListView>
     </gridlayout>
     <Button
+      v-if="pdfFile !== ''"
       margin="2"
       text="In OneDrive speichern"
       class="btn btn-primary"
       @tap="uploadPdf()"
+    />
+    <Button
+      v-if="pdfFile !== ''"
+      margin="2"
+      text="Abbrechen"
+      class="btn btn-primary"
+      @tap="cancel()"
     />
   </StackLayout>
 </template>
@@ -82,6 +90,9 @@ export default {
     },
     onUploadMultiTap() {
       this.resize(false, true);
+    },
+    cancel() {
+      this.$emit('cancel');
     },
     resize() {
       const name = this.file.substr(this.file.lastIndexOf('/') + 1);

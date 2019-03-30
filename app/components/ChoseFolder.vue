@@ -28,12 +28,13 @@ export default {
   },
   mounted() {
     this.mstoken = appSettings.getString('mstoken');
+    this.mainFolder = appSettings.getString('mainFolderId');
     this.getDrives();
   },
   methods: {
     getDrives() {
       console.log(this.mstoken);
-      fetch('https://graph.microsoft.com/v1.0/me/drive/root/children?filter=folder%20ne%20null', {
+      fetch('https://graph.microsoft.com/v1.0/me/drive/root/children', {
         method: 'GET',
         headers: { Authorization: `Bearer ${this.mstoken}` },
       })

@@ -7,7 +7,7 @@
       <ActionItem
         ios-system-icon="16"
         ios.position="right"
-        :text="view === 'main' ? 'Einstellungen' : 'Haupt'"
+        :text="view === 'main' ? 'Einstellungen' : 'Zurück'"
         android.position="popup"
         @tap="view === 'main' ? setView('settings') : setView('main')"
       />
@@ -41,6 +41,7 @@
         v-if="image !== ''"
         :img="image"
         @success="e => uploaded(e)"
+        @cancel="cancel()"
       />
       <Button
         v-show="pdfUrl !== ''"
@@ -77,9 +78,11 @@ export default {
     };
   },
   mounted() {
-    this.mstoken = appSettings.getString('mstoken');
-    if (this.mstoken !== '') {
-      this.getUser();
+    const mstoken = appSettings.getString('mstoken');
+
+    if (mstoken) {
+      this.mstoken = mstoken;
+      this.getUser(mstoken);
     }
   },
   methods: {
@@ -92,7 +95,7 @@ export default {
         this.loading = true;
         appSettings.setString('mstoken', token);
         this.mstoken = token;
-        this.getUser();
+        this.getUser(token);
       });
     },
     logout() {
@@ -112,12 +115,12 @@ export default {
     openPdf() {
       utilsModule.openUrl(this.pdfUrl);
     },
-    getUser() {
+    getUser(mstoken) {
       const odurl = 'https://graph.microsoft.com/v1.0/me';
-      console.log('TOKEN', this.mstoken);
+      console.log('TOKEN', mstoken);
       fetch(odurl, {
         method: 'GET',
-        headers: { Authorization: `Bearer ${this.mstoken}` },
+        headers: { Authorization: `Bearer ${mstoken}` },
       })
         .then((response) => {
           console.log(response);
@@ -140,19 +143,20 @@ export default {
         }).catch((e) => {
         });
     },
+    cancel() {
+      this.image = '';
+      this.pdfUrl = '';
+    },
   },
 };
 </script>
 
 <style scoped lang="scss">
-    // Start custom common variables
-    // End custom common variables
-    // Custom styles
-    .fa {
-        color: #000000;
-    }
-
-    .info {
-        font-size: 20;
-    }
+    ActionBar {
+         background-color: #0078d7;
+         color: #ffffff;
+     }
+     ActionItem {
+       color: #ffffff;
+     }
 </style>
