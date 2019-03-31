@@ -17,8 +17,8 @@ export default {
   props: {
     loggedIn: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {

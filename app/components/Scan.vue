@@ -44,8 +44,6 @@
 <script>
 const bgHttp = require('nativescript-background-http');
 const fs = require('file-system');
-const platform = require('platform');
-const appSettings = require('application-settings');
 const httpModule = require('http');
 const fileSystemModule = require('tns-core-modules/file-system');
 
