@@ -3,7 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const nativescript_oauth2_1 = require('nativescript-oauth2');
 const providers_1 = require('nativescript-oauth2/providers');
-const appSettings = require('application-settings');
+const appSettings = require('tns-core-modules/application-settings');
 
 let client = null;
 function configureOAuthProviders() {

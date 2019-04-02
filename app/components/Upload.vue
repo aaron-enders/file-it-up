@@ -35,7 +35,7 @@
       @tap="newFolder()"
     />
     <Button
-      :text="'continue'|L"
+      :text="'next'|L"
       class="btn btn-primary"
       @tap="uploadToCloud()"
     />
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-const appSettings = require('application-settings');
+const appSettings = require('tns-core-modules/application-settings');
 const bgHttp = require('nativescript-background-http');
 
 export default {

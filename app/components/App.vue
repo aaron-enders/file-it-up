@@ -59,7 +59,7 @@ import Photo from '@/components/Photo.vue';
 import Scan from '@/components/Scan.vue';
 import Upload from '@/components/Upload.vue';
 
-const appSettings = require('application-settings');
+const appSettings = require('tns-core-modules/application-settings');
 const auth_service_1 = require('../auth-service');
 const utilsModule = require('tns-core-modules/utils/utils');
 
@@ -139,7 +139,7 @@ export default {
           console.log(response);
           if (response.statusText === 'Unauthorized') {
             console.log('ERROR', response);
-            alert(this.$localize('loginfailed'));
+            // alert(this.$localize('loginfailed'));
             this.loggedIn = false;
             this.loading = false;
           } else {
