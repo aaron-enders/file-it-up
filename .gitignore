@@ -9,3 +9,4 @@ hooks
 platforms
 *.keystore
 *.apk
+*.aab
